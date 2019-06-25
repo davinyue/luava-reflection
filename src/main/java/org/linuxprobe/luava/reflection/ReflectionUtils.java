@@ -327,24 +327,9 @@ public class ReflectionUtils {
 	 * @param order    获取第几个泛型参数
 	 */
 	public static Class<?> getGenericSuperclass(Class<?> objClass, int order) {
-		Type type = ((ParameterizedType) objClass.getGenericSuperclass()).getActualTypeArguments()[order];
-		Class<?> genericsCalss = null;
-		try {
-			genericsCalss = ReflectionUtils.class.getClassLoader().loadClass(type.getTypeName());
-			return genericsCalss;
-		} catch (ClassNotFoundException e) {
-			throw new IllegalArgumentException(e);
-		}
-	}
-
-	/**
-	 * 获取类的父类泛型类型参数
-	 * 
-	 * @param objClass 要获取的类类型
-	 * @param order    获取第几个泛型参数
-	 */
-	public static Type getGenericSuperType(Class<?> objClass, int order) {
-		Type type = ((ParameterizedType) objClass.getGenericSuperclass()).getActualTypeArguments()[order];
+		Type genType = objClass.getGenericSuperclass();
+		Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
+		Class<?> type = (Class<?>) params[order];
 		return type;
 	}
 
