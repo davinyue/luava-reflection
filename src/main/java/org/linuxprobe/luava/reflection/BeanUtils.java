@@ -150,11 +150,7 @@ public class BeanUtils {
                 Field sourceField = sourceFieldMap.get(fieldName);
                 Object sourceValue = ReflectionUtils.getFieldValue(source, sourceField, userGatter);
                 if (sourceValue != null) {
-                    if (!isNeedRecursion(sourceValue)) {
-                        result.put(fieldName, sourceValue);
-                    } else {
-                        result.put(fieldName, beanToMap(sourceValue, userGatter));
-                    }
+                    result.put("fieldName", sourceValue);
                 }
             }
             return result;
