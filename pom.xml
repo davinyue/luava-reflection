@@ -37,7 +37,7 @@
 
     <groupId>org.linuxprobe</groupId>
     <artifactId>luava-reflection</artifactId>
-    <version>0.0.3.RELEASE</version>
+    <version>0.0.4.RELEASE</version>
     <packaging>jar</packaging>
     <name>luava-reflection</name>
     <description>luava-reflection</description>

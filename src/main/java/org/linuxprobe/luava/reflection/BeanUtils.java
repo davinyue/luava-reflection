@@ -23,7 +23,7 @@ public class BeanUtils {
     public static void copyProperties(Object source, Object target, String... ignoreFields) {
         CopyOptions copyOptions = new CopyOptions();
         copyOptions.setIgnoreFields(Arrays.asList(ignoreFields));
-        copyProperties(source, target, copyOptions);
+        BeanUtils.copyProperties(source, target, copyOptions);
     }
 
     /**
@@ -33,7 +33,7 @@ public class BeanUtils {
      * @param target the target bean
      */
     public static void copyProperties(Object source, Object target) {
-        copyProperties(source, target, new CopyOptions());
+        BeanUtils.copyProperties(source, target, new CopyOptions());
     }
 
     /**
@@ -56,32 +56,24 @@ public class BeanUtils {
         if (copyOptions.getIgnoreFields() == null) {
             copyOptions.setIgnoreFields(new LinkedList<>());
         }
-        Map<String, Field> sourceFieldMap = getFieldMap(source.getClass());
-        Map<String, Field> targetFieldMap = getFieldMap(target.getClass());
+        Map<String, Field> sourceFieldMap = BeanUtils.getFieldMap(source.getClass());
+        Map<String, Field> targetFieldMap = BeanUtils.getFieldMap(target.getClass());
         Set<String> fieldNames = sourceFieldMap.keySet();
         for (String fieldName : fieldNames) {
             Field sourceField = sourceFieldMap.get(fieldName);
-            if (copyOptions.getIgnoreFields().contains(fieldName)) {
+            String targetFieldName = copyOptions.getFieldMapping().get(fieldName);
+            if (targetFieldName == null) {
+                targetFieldName = fieldName;
+            }
+            Field targetField = targetFieldMap.get(targetFieldName);
+            if (targetField == null) {
                 continue;
-            } else {
+            }
+            if (!copyOptions.getIgnoreFields().contains(fieldName)) {
                 Object sourceValue = ReflectionUtils.getFieldValue(source, sourceField, copyOptions.isUseGetter());
-                if (sourceValue == null && copyOptions.isIgnoreNullValue()) {
-                    continue;
-                } else {
-                    String targetFieldName = copyOptions.getFieldMapping().get(fieldName);
-                    if (targetFieldName == null) {
-                        targetFieldName = fieldName;
-                    }
-                    Field targetField = targetFieldMap.get(targetFieldName);
-                    if (targetField == null) {
-                        continue;
-                    }
+                if (!(sourceValue == null && copyOptions.isIgnoreNullValue())) {
                     try {
-                        if (copyOptions.isUseSetter()) {
-                            ReflectionUtils.setFieldValue(target, targetField, sourceValue, true);
-                        } else {
-                            ReflectionUtils.setFieldValue(target, targetField, sourceValue, false);
-                        }
+                        ReflectionUtils.setFieldValue(target, targetField, sourceValue, copyOptions.isUseSetter());
                     } catch (Exception e) {
                         if (!copyOptions.isIgnoreError()) {
                             throw new IllegalArgumentException(
@@ -144,7 +136,7 @@ public class BeanUtils {
             throw new IllegalArgumentException("source can not be null");
         } else {
             Map<String, Object> result = new HashMap<>();
-            Map<String, Field> sourceFieldMap = getFieldMap(source.getClass());
+            Map<String, Field> sourceFieldMap = BeanUtils.getFieldMap(source.getClass());
             Set<String> fieldNames = sourceFieldMap.keySet();
             for (String fieldName : fieldNames) {
                 Field sourceField = sourceFieldMap.get(fieldName);
@@ -163,7 +155,7 @@ public class BeanUtils {
      * @param source 需要转换成map的bean
      */
     public static Map<String, Object> beanToMap(Object source) {
-        return beanToMap(source, true);
+        return BeanUtils.beanToMap(source, true);
     }
 
     private static Map<String, Field> getFieldMap(Class<?> clazz) {
