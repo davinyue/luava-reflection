@@ -3,6 +3,7 @@ package org.linuxprobe.luava.reflection;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,65 +22,60 @@ public class BeanUtils {
      * @param ignoreFields 忽略属性
      */
     public static void copyProperties(Object source, Object target, String... ignoreFields) {
-        CopyOptions copyOptions = new CopyOptions();
-        copyOptions.setIgnoreFields(Arrays.asList(ignoreFields));
+        CopyOption copyOptions = new CopyOption();
+        copyOptions.addIgnoreFields(ignoreFields);
         BeanUtils.copyProperties(source, target, copyOptions);
     }
 
     /**
      * bean属性拷贝,把source bean的属性拷贝到target bean
      *
-     * @param source the source bean
-     * @param target the target bean
+     * @param source     the source bean
+     * @param target     the target bean
+     * @param copyOption 拷贝属性
      */
-    public static void copyProperties(Object source, Object target) {
-        BeanUtils.copyProperties(source, target, new CopyOptions());
-    }
-
-    /**
-     * bean属性拷贝,把source bean的属性拷贝到target bean
-     *
-     * @param source      the source bean
-     * @param target      the target bean
-     * @param copyOptions 拷贝属性
-     */
-    public static void copyProperties(Object source, Object target, CopyOptions copyOptions) {
+    public static void copyProperties(Object source, Object target, CopyOption copyOption) {
         if (source == null || target == null) {
             return;
         }
-        if (copyOptions == null) {
-            copyOptions = new CopyOptions();
-        }
-        if (copyOptions.getFieldMapping() == null) {
-            copyOptions.setFieldMapping(new HashMap<>());
-        }
-        if (copyOptions.getIgnoreFields() == null) {
-            copyOptions.setIgnoreFields(new LinkedList<>());
+        if (copyOption == null) {
+            copyOption = new CopyOption();
         }
         Map<String, Field> sourceFieldMap = BeanUtils.getFieldMap(source.getClass());
         Map<String, Field> targetFieldMap = BeanUtils.getFieldMap(target.getClass());
         Set<String> fieldNames = sourceFieldMap.keySet();
         for (String fieldName : fieldNames) {
-            Field sourceField = sourceFieldMap.get(fieldName);
-            String targetFieldName = copyOptions.getFieldMapping().get(fieldName);
+            if (copyOption.getIgnoreFields().contains(fieldName)) {
+                continue;
+            }
+            String targetFieldName = copyOption.getFieldMapping().get(fieldName);
             if (targetFieldName == null) {
                 targetFieldName = fieldName;
             }
+
             Field targetField = targetFieldMap.get(targetFieldName);
             if (targetField == null) {
                 continue;
             }
-            if (!copyOptions.getIgnoreFields().contains(fieldName)) {
-                Object sourceValue = ReflectionUtils.getFieldValue(source, sourceField, copyOptions.isUseGetter());
-                if (!(sourceValue == null && copyOptions.isIgnoreNullValue())) {
-                    try {
-                        ReflectionUtils.setFieldValue(target, targetField, sourceValue, copyOptions.isUseSetter());
-                    } catch (Exception e) {
-                        if (!copyOptions.isIgnoreError()) {
-                            throw new IllegalArgumentException(
-                                    "can't copy " + fieldName + " to " + targetField.getName(), e);
-                        }
-                    }
+
+            Field sourceField = sourceFieldMap.get(fieldName);
+            if (sourceField == null) {
+                continue;
+            }
+
+            Object sourceValue = ReflectionUtils.getFieldValue(source, sourceField, copyOption.isUseGetter());
+            if (sourceValue == null && copyOption.isIgnoreNullValue()) {
+                continue;
+            }
+
+            try {
+                ReflectionUtils.setFieldValue(target, targetField, sourceValue, copyOption.isUseSetter());
+            } catch (Exception e) {
+                if (!copyOption.isIgnoreError()) {
+                    throw new IllegalArgumentException(
+                            String.format("Can not copy the value of the field named '%s' to the field '%s'.",
+                                    fieldName, targetField.getName()),
+                            e);
                 }
             }
         }
@@ -172,52 +168,142 @@ public class BeanUtils {
         return fieldMap;
     }
 
+    /**
+     * 拷贝选项
+     */
     @Getter
-    @Setter
     @Accessors(chain = true)
-    public static class CopyOptions {
+    public static class CopyOption {
+
         /**
-         * 是否忽略空值，当源对象的值为null时，true: 忽略而不注入此值，false: 注入null
+         * 默认构造方法
          */
-        private boolean ignoreNullValue = false;
-        /**
-         * 忽略的目标对象中属性列表，设置一个属性列表，不拷贝这些属性值
-         */
-        private List<String> ignoreFields = new LinkedList<>();
-        /**
-         * 是否忽略字段注入错误
-         */
-        private boolean ignoreError = false;
+        public CopyOption() {
+            fieldMapping = new HashMap<>();
+            ignoreError = false;
+            ignoreFields = new LinkedList<>();
+            ignoreNullValue = false;
+            useGetter = true;
+            useSetter = true;
+        }
+
         /**
          * 拷贝属性的字段映射，用于不同的属性之前拷贝做对应表用
          */
-        private Map<String, String> fieldMapping = new HashMap<>();
+        private Map<String, String> fieldMapping;
         /**
-         * 使用get函数
+         * 是否忽略字段注入错误
          */
-        private boolean useGetter = true;
+        @Setter
+        private boolean ignoreError;
         /**
-         * 使用set函数
+         * 忽略的目标对象中属性名称列表，设置一个属性名称列表，不拷贝这些属性值
          */
-        private boolean useSetter = true;
+        private List<String> ignoreFields;
+        /**
+         * 是否忽略空值，当源对象的值为null时，true: 忽略而不注入此值，false: 注入null
+         */
+        @Setter
+        private boolean ignoreNullValue;
+        /**
+         * 使用get方法
+         */
+        @Setter
+        private boolean useGetter;
+        /**
+         * 使用set方法
+         */
+        @Setter
+        private boolean useSetter;
 
-        public CopyOptions addIgnorePropertie(String propertie) {
-            this.ignoreFields.add(propertie);
+        /**
+         * 添加 源属性与目标属性的对应关系。
+         * 如果源属性名已存在，则不变化。
+         *
+         * @param sourceFieldName 源属性名称
+         * @param targetFieldName 目标属性名称
+         * @return the instance  of <tt>CopyOption</tt>
+         * @throws IllegalArgumentException If the <tt>sourceFieldName</tt> or <tt>targetFieldName</tt> is whitespace, empty ("") or null.
+         */
+        public CopyOption addFieldMapping(String sourceFieldName, String targetFieldName) {
+            if (StringUtils.isBlank(sourceFieldName)) {
+                throw new IllegalArgumentException("The sourceFieldName can not be whitespace, empty (\"\") or null.");
+            }
+            if (StringUtils.isBlank(targetFieldName)) {
+                throw new IllegalArgumentException("The targetFieldName can not be whitespace, empty (\"\") or null.");
+            }
+            if (fieldMapping.containsKey(sourceFieldName)) {
+                return this;
+            }
+            this.fieldMapping.put(sourceFieldName, targetFieldName);
             return this;
         }
 
-        public CopyOptions removeIgnorePropertie(String propertie) {
-            this.ignoreFields.remove(propertie);
+        /**
+         * 移除 源属性与目标属性的对应关系
+         * <p>
+         * 如果源属性名不存在，则不变化。
+         *
+         * @param sourceFieldName 源属性名称
+         * @return the instance  of <tt>CopyOption</tt>
+         * @throws IllegalArgumentException If the <tt>sourceFieldName</tt> is whitespace, empty ("") or null.
+         */
+        public CopyOption removeFieldMapping(String sourceFieldName) {
+            if (StringUtils.isBlank(sourceFieldName)) {
+                throw new IllegalArgumentException("The sourceFieldName can not be whitespace, empty (\"\") or null.");
+            }
+            if (fieldMapping.containsKey(sourceFieldName)) {
+                this.fieldMapping.remove(sourceFieldName);
+            }
             return this;
         }
 
-        public CopyOptions addFieldMapping(String sourceFieldName, String targetFieldname) {
-            this.fieldMapping.put(sourceFieldName, targetFieldname);
+        /**
+         * 添加 要忽略的属性名称。
+         * 如果属性值为空白字符或空串("")或null则忽略。
+         * 如果属性名已存在，则不变化。
+         *
+         * @param sourceFieldNames 要忽略的源对象中的属性名称
+         * @return the instance  of <tt>CopyOption</tt>
+         */
+        public CopyOption addIgnoreFields(String... sourceFieldNames) {
+            if (sourceFieldNames == null || sourceFieldNames.length == 0) {
+                return this;
+            }
+
+            for (String fieldName : sourceFieldNames) {
+                if (StringUtils.isBlank(fieldName)) {
+                    continue;
+                }
+                if (this.ignoreFields.contains(fieldName)) {
+                    continue;
+                }
+                this.ignoreFields.add(fieldName);
+            }
             return this;
         }
 
-        public CopyOptions removeFieldMapping(String sourceFieldName) {
-            this.fieldMapping.remove(sourceFieldName);
+        /**
+         * 移除 要忽略的属性名称。
+         * 如果属性值为空白字符或空串("")或null则忽略。
+         * 如果属性名不存在，则不变化。
+         *
+         * @param sourceFieldNames 要忽略的源对象中的属性名称
+         * @return the instance  of <tt>CopyOption</tt>
+         */
+        public CopyOption removeIgnoreFields(String... sourceFieldNames) {
+            if (sourceFieldNames == null || sourceFieldNames.length == 0) {
+                return this;
+            }
+
+            for (String fieldName : sourceFieldNames) {
+                if (StringUtils.isBlank(fieldName)) {
+                    continue;
+                }
+                if (this.ignoreFields.contains(fieldName)) {
+                    this.ignoreFields.remove(fieldName);
+                }
+            }
             return this;
         }
     }
