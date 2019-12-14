@@ -392,16 +392,6 @@ public class ReflectionUtils {
     }
 
     /**
-     * 获取方法
-     *
-     * @param objClass 要获取的对象的类类型
-     * @param name     方法名称
-     */
-    public static Method getMethod(Class<?> objClass, String name) {
-        return getMethod(objClass, name, (Class<?>[]) null);
-    }
-
-    /**
      * 执行方法
      *
      * @param object 需要执行的对象
@@ -420,16 +410,6 @@ public class ReflectionUtils {
     /**
      * 执行方法
      *
-     * @param object 需要执行的对象
-     * @param method 需要执行的方法
-     */
-    public static void invokeMethod(Object object, Method method) {
-        invokeMethod(object, method, (Object[]) null);
-    }
-
-    /**
-     * 执行方法
-     *
      * @param object     需要执行的对象
      * @param methodName 需要执行的方法名称
      * @param args       参数
@@ -437,16 +417,5 @@ public class ReflectionUtils {
     public static void invokeMethod(Object object, String methodName, Object... args) {
         Method method = getMethod(object.getClass(), methodName);
         invokeMethod(object, method, args);
-    }
-
-    /**
-     * 执行方法
-     *
-     * @param object     需要执行的对象
-     * @param methodName 需要执行的方法名称
-     */
-    public static void invokeMethod(Object object, String methodName) {
-        Method method = getMethod(object.getClass(), methodName);
-        invokeMethod(object, method, (Object[]) null);
     }
 }
