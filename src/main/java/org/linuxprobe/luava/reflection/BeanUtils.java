@@ -124,10 +124,10 @@ public class BeanUtils {
     /**
      * 转换成map
      *
-     * @param source     需要转换成map的bean
-     * @param userGatter 使用get函数
+     * @param source    需要转换成map的bean
+     * @param useGetter 使用get函数
      */
-    public static Map<String, Object> beanToMap(Object source, boolean userGatter) {
+    public static Map<String, Object> beanToMap(Object source, boolean useGetter) {
         if (source == null) {
             throw new IllegalArgumentException("source can not be null");
         } else {
@@ -136,7 +136,7 @@ public class BeanUtils {
             Set<String> fieldNames = sourceFieldMap.keySet();
             for (String fieldName : fieldNames) {
                 Field sourceField = sourceFieldMap.get(fieldName);
-                Object sourceValue = ReflectionUtils.getFieldValue(source, sourceField, userGatter);
+                Object sourceValue = ReflectionUtils.getFieldValue(source, sourceField, useGetter);
                 if (sourceValue != null) {
                     result.put("fieldName", sourceValue);
                 }
