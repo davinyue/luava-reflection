@@ -148,17 +148,17 @@ public class ReflectionUtils {
     /**
      * 设置属性值
      *
-     * @param obj        要设置的对象
-     * @param field      要设置的属性
-     * @param value      要设置的值
-     * @param userSetter 是否使用set函数
+     * @param obj       要设置的对象
+     * @param field     要设置的属性
+     * @param value     要设置的值
+     * @param useSetter 是否使用set函数
      */
-    public static void setFieldValue(Object obj, Field field, Object value, boolean userSetter) {
+    public static void setFieldValue(Object obj, Field field, Object value, boolean useSetter) {
         if (obj == null || field == null) {
             return;
         }
         Class<?> objClass = getRealCalssOfProxyClass(obj.getClass());
-        if (!userSetter) {
+        if (!useSetter) {
             field.setAccessible(true);
             try {
                 field.set(objClass, value);
@@ -190,18 +190,18 @@ public class ReflectionUtils {
     /**
      * 设置属性值
      *
-     * @param obj        要设置的对象
-     * @param fieldName  要设置的属性名称
-     * @param value      要设置的值
-     * @param userSetter 是否使用set函数
+     * @param obj       要设置的对象
+     * @param fieldName 要设置的属性名称
+     * @param value     要设置的值
+     * @param useSetter 是否使用set函数
      */
-    public static void setFieldValue(Object obj, String fieldName, Object value, boolean userSetter) {
+    public static void setFieldValue(Object obj, String fieldName, Object value, boolean useSetter) {
         if (obj == null || fieldName == null || fieldName.isEmpty()) {
             return;
         } else {
             Field field = getField(obj.getClass(), fieldName);
             if (field != null) {
-                setFieldValue(obj, field, value, userSetter);
+                setFieldValue(obj, field, value, useSetter);
             }
         }
     }
@@ -220,18 +220,18 @@ public class ReflectionUtils {
     /**
      * 获取属性值
      *
-     * @param obj        要获取的对象
-     * @param field      要获取的属性
-     * @param userGetter 是否使用get函数
+     * @param obj       要获取的对象
+     * @param field     要获取的属性
+     * @param useGetter 是否使用get函数
      */
     @SuppressWarnings("unchecked")
-    public static <T> T getFieldValue(Object obj, Field field, boolean userGetter) {
+    public static <T> T getFieldValue(Object obj, Field field, boolean useGetter) {
         if (obj == null || field == null) {
             return null;
         }
         Class<?> objClass = getRealCalssOfProxyClass(obj.getClass());
         T result = null;
-        if (!userGetter) {
+        if (!useGetter) {
             field.setAccessible(true);
             try {
                 result = (T) field.get(obj);
@@ -263,11 +263,11 @@ public class ReflectionUtils {
     /**
      * 获取属性值
      *
-     * @param obj        要获取的对象
-     * @param fieldName  要获取的属性名称
-     * @param userGetter 是否使用get函数
+     * @param obj       要获取的对象
+     * @param fieldName 要获取的属性名称
+     * @param useGetter 是否使用get函数
      */
-    public static <T> T getFieldValue(Object obj, String fieldName, boolean userGetter) {
+    public static <T> T getFieldValue(Object obj, String fieldName, boolean useGetter) {
         if (obj == null || fieldName == null || fieldName.isEmpty()) {
             return null;
         }
@@ -275,7 +275,7 @@ public class ReflectionUtils {
         if (field == null) {
             return null;
         } else {
-            return getFieldValue(obj, field, userGetter);
+            return getFieldValue(obj, field, useGetter);
         }
     }
 
@@ -342,7 +342,7 @@ public class ReflectionUtils {
      * @param field 要获取的field
      * @param order 获取第几个泛型参数
      */
-    public static Class<?> getFiledGenericclass(Field field, int order) {
+    public static Class<?> getFiledGenericClass(Field field, int order) {
         ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
         if (parameterizedType == null) {
             throw new IllegalArgumentException("必须指定泛型类型");
@@ -392,16 +392,6 @@ public class ReflectionUtils {
     }
 
     /**
-     * 获取方法
-     *
-     * @param objClass 要获取的对象的类类型
-     * @param name     方法名称
-     */
-    public static Method getMethod(Class<?> objClass, String name) {
-        return getMethod(objClass, name, (Class<?>[]) null);
-    }
-
-    /**
      * 执行方法
      *
      * @param object 需要执行的对象
@@ -420,16 +410,6 @@ public class ReflectionUtils {
     /**
      * 执行方法
      *
-     * @param object 需要执行的对象
-     * @param method 需要执行的方法
-     */
-    public static void invokeMethod(Object object, Method method) {
-        invokeMethod(object, method, (Object[]) null);
-    }
-
-    /**
-     * 执行方法
-     *
      * @param object     需要执行的对象
      * @param methodName 需要执行的方法名称
      * @param args       参数
@@ -437,16 +417,5 @@ public class ReflectionUtils {
     public static void invokeMethod(Object object, String methodName, Object... args) {
         Method method = getMethod(object.getClass(), methodName);
         invokeMethod(object, method, args);
-    }
-
-    /**
-     * 执行方法
-     *
-     * @param object     需要执行的对象
-     * @param methodName 需要执行的方法名称
-     */
-    public static void invokeMethod(Object object, String methodName) {
-        Method method = getMethod(object.getClass(), methodName);
-        invokeMethod(object, method, (Object[]) null);
     }
 }
