@@ -37,7 +37,7 @@
 
     <groupId>org.linuxprobe</groupId>
     <artifactId>luava-reflection</artifactId>
-    <version>0.0.4.RELEASE</version>
+    <version>0.0.5.RELEASE</version>
     <packaging>jar</packaging>
     <name>luava-reflection</name>
     <description>luava-reflection</description>
@@ -50,7 +50,6 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
-        <spring.vsersion>5.1.7.RELEASE</spring.vsersion>
     </properties>
 
     <dependencies>
