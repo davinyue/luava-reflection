@@ -3,8 +3,8 @@
 maven pom引入
 ```
 <dependency>
-    <groupId>org.linuxprobe</groupId>
+    <groupId>org.rdlinux</groupId>
     <artifactId>luava-reflection</artifactId>
-    <version>0.0.5.RELEASE</version>
+    <version>0.0.1</version>
 </dependency>
 ```

@@ -1,13 +1,11 @@
-package org.linuxprobe.luava;
+package org.rdlinux.luava;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.linuxprobe.luava.reflection.BeanUtils;
-import org.linuxprobe.luava.reflection.BeanUtils.CopyOption;
+import org.rdlinux.luava.reflection.BeanUtils;
+import org.rdlinux.luava.reflection.CopyOption;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +36,8 @@ public class BeanUtilsTest {
         itemB.setItems(bSubItems);
     }
 
-
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void copyFieldsTest() {
@@ -58,17 +57,14 @@ public class BeanUtilsTest {
         Assert.assertNull(targetA.getSubItems());
     }
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     @Test
     public void copyFieldsWithOption() throws IllegalArgumentException {
 
         // 断言 IllegalArgumentException
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("Can not copy the value of the field named 'sex' to the field 'score'.");
+        this.expectedException.expect(IllegalArgumentException.class);
+        this.expectedException.expectMessage("Can not copy the value of the field named 'sex' to the field 'score'.");
 
-        BeanUtils.CopyOption option = new BeanUtils.CopyOption();
+        CopyOption option = new CopyOption();
         option.addIgnoreFields("code");
         ItemA targetA = new ItemA();
         BeanUtils.copyProperties(itemA, targetA, option);
@@ -118,7 +114,7 @@ public class BeanUtilsTest {
         try {
             StudentA studentA = new StudentA();
             StudentB studentB = new StudentB();
-            BeanUtils.copyProperties(studentA, studentB, new BeanUtils.CopyOption().addFieldMapping("height", "heIght"));
+            BeanUtils.copyProperties(studentA, studentB, new CopyOption().addFieldMapping("height", "heIght"));
             System.out.println(studentB);
             System.out.println(BeanUtils.beanToMap(studentA));
         } catch (Exception e) {
@@ -127,23 +123,49 @@ public class BeanUtilsTest {
     }
 }
 
-@Getter
-@Setter
 class StudentA {
     static String test = "testa";
     private Integer height = 78;
+
+    public static String getTest() {
+        return test;
+    }
+
+    public static void setTest(String test) {
+        StudentA.test = test;
+    }
+
+    public Integer getHeight() {
+        return this.height;
+    }
+
+    public void setHeight(Integer height) {
+        this.height = height;
+    }
 }
 
-@Getter
-@Setter
 class StudentB {
     static String test = "test";
     private int heIght = 165;
+
+    public static String getTest() {
+        return test;
+    }
+
+    public static void setTest(String test) {
+        StudentB.test = test;
+    }
+
+    public int getHeIght() {
+        return this.heIght;
+    }
+
+    public void setHeIght(int heIght) {
+        this.heIght = heIght;
+    }
 }
 
 
-@Getter
-@Setter
 class ItemA implements Cloneable {
     private String code;
 
@@ -157,10 +179,40 @@ class ItemA implements Cloneable {
     protected Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
+
+    public String getCode() {
+        return this.code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public boolean isSex() {
+        return this.sex;
+    }
+
+    public void setSex(boolean sex) {
+        this.sex = sex;
+    }
+
+    public SubItem getSubItem() {
+        return this.subItem;
+    }
+
+    public void setSubItem(SubItem subItem) {
+        this.subItem = subItem;
+    }
+
+    public List<SubItem> getSubItems() {
+        return this.subItems;
+    }
+
+    public void setSubItems(List<SubItem> subItems) {
+        this.subItems = subItems;
+    }
 }
 
-@Getter
-@Setter
 class ItemB {
     private String number;
 
@@ -169,11 +221,49 @@ class ItemB {
     private SubItem item;
 
     private List<SubItem> items;
+
+    public String getNumber() {
+        return this.number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public int getScore() {
+        return this.score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public SubItem getItem() {
+        return this.item;
+    }
+
+    public void setItem(SubItem item) {
+        this.item = item;
+    }
+
+    public List<SubItem> getItems() {
+        return this.items;
+    }
+
+    public void setItems(List<SubItem> items) {
+        this.items = items;
+    }
 }
 
 
-@Setter
-@Getter
 class SubItem {
     private String name;
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

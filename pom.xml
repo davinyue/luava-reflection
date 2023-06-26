@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <licenses>
@@ -11,37 +11,35 @@
     </licenses>
     <developers>
         <developer>
-            <name>linuxprobe.org</name>
-            <email>linuxprobe.org@gmail.com</email>
+            <name>rdavinyue</name>
+            <email>davinyue@gmail.com</email>
         </developer>
     </developers>
     <scm>
         <tag>master</tag>
-        <connection>https://github.com/linuxprobe-org/luava-reflection.git</connection>
-        <developerConnection>https://github.com/linuxprobe-org</developerConnection>
-        <url>https://github.com/linuxprobe-org/luava-reflection.git</url>
+        <connection>https://github.com/davinyue/luava-reflection.git</connection>
+        <developerConnection>https://github.com/davinyue</developerConnection>
+        <url>https://github.com/davinyue/luava-reflection.git</url>
     </scm>
 
     <distributionManagement>
-        <snapshotRepository>
-            <id>snapshots</id>
-            <name>OSS Snapshots Repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
         <repository>
-            <id>releases</id>
-            <name>OSS Staging Repository</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+            <id>oss-release</id>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
+        <snapshotRepository>
+            <id>oss-snapshot</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
     </distributionManagement>
 
-    <groupId>org.linuxprobe</groupId>
+    <groupId>org.rdlinux</groupId>
     <artifactId>luava-reflection</artifactId>
-    <version>0.0.5.RELEASE</version>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
     <name>luava-reflection</name>
     <description>luava-reflection</description>
-    <url>https://github.com/linuxprobe-org/luava-reflection.git</url>
+    <url>https://github.com/davinyue/luava-reflection.git</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -56,18 +54,13 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.4</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
         </dependency>
     </dependencies>
     <build>

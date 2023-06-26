@@ -1,4 +1,4 @@
-package org.linuxprobe.luava.reflection;
+package org.rdlinux.luava.reflection;
 
 import java.lang.reflect.*;
 import java.util.Arrays;
